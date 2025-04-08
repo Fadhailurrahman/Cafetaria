@@ -19,7 +19,7 @@ const Input = (props: PropTypes) => {
         placeholder, 
         required = false,
         className,
-        ...rest // Menyaring properti yang belum disebutkan
+        ...rest 
     } = props;
 
     return (
@@ -32,7 +32,7 @@ const Input = (props: PropTypes) => {
                 name={name} 
                 placeholder={placeholder} 
                 required={required} 
-                {...rest} // Meneruskan properti tambahan tanpa duplikasi
+                {...rest} 
             />
         </label>
     );

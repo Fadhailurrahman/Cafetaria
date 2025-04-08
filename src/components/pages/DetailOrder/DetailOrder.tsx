@@ -4,6 +4,7 @@ import { Button } from "@mui/material";
 import { IOrder } from "../../../types/order"; 
 import { getOrderById } from "../../../services/order.service";
 import styles from './DetailOrder.module.css';
+import { ICart } from "../../../types/order";
 
 const DetailOrder = () => {
     const { id } = useParams();
@@ -51,16 +52,21 @@ const DetailOrder = () => {
                 <div className={styles.cart}>
                     <h3>Order Items</h3>
                     <div className={styles.list}>
-                        {order?.cart?.map((item) => (
-                            <div className={styles.item} key={item.menu}>
+                        {order?.cart?.map((item: ICart) => (
+                            <div className={styles.item} key={item.menuId}>
                                 <img
                                     className={styles.image}
                                     src={item?.menuItem?.image_url}
                                     alt={item?.menuItem?.name}
                                 />
+                                <div>
                                 <p className={styles.name}>
                                     {item.quantity} x {item?.menuItem?.name}
                                 </p>
+                                <p className={styles.price}>
+                                    ${parseInt(`${item.menuItem?.price}`) * item.quantity}
+                                </p>
+                                </div>
                             </div>
                         ))}
                     </div>
