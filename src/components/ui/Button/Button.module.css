@@ -1,19 +1,33 @@
 .button {
     padding: 12px 16px;
-    border-radius: 0,5rem;
+    border-radius: 0.5rem;
     display: flex;
     justify-content: center;
-    align-items: 700;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .button-primary {
-    background-color: #1c1c1c;
-    border: 1px solid #1c1c1c;
+    background-color: #1c3a5d;
+    border: 1px solid #1c3a5d;
     color: #fff;
 }
 
-.button.secondary {
+.button-primary:hover {
+    background-color: #3a5a8d;
+    border-color: #3a5a8d;
+}
+
+.button-secondary {
     background-color: #fff;
-    color: #1c1c1c;
-    border: 1px solid #1c1c1c;
+    color: #1c3a5d;
+    border: 1px solid #1c3a5d;
+}
+
+.button-secondary:hover {
+    background-color: #f0f0f0;
+    border-color: #3a5a8d;
+    color: #3a5a8d;
 }

@@ -34,7 +34,7 @@ export const getOrderById = async (id: string) => {
 export const createOrder = async (payload: {
     customerName: string;
     tableNumber: number;
-    carts: ICart[]; 
+    cart: ICart[]; 
 }) => {
     try {
         const result = await fetchAPI(`${environment.API_URL}/orders/`, {
