@@ -28,11 +28,27 @@ const CreateOrder = () => {
         const itemIsInCart = carts.find((item: ICart) => item.menuId === id);
         if (type === 'increment') {
             if (itemIsInCart) {
-                setCart(
-                    carts.map((item: ICart) =>
-                        item.menuId === id ? { ...item, quantity: item.quantity + 1 } : item
-                    ),
-                );
+                setCart((prevCarts) => {
+                    const itemIsInCart = prevCarts.find((item: ICart) => item.menuId === id);
+                    if (type === 'increment') {
+                        if (itemIsInCart) {
+                            return prevCarts.map((item: ICart) =>
+                                item.menuId === id ? { ...item, quantity: item.quantity + 1 } : item
+                            );
+                        } else {
+                            return [...prevCarts, { menuId: id, name, quantity: 1 }];
+                        }
+                    } else {
+                        if (itemIsInCart && itemIsInCart.quantity <= 1) {
+                            return prevCarts.filter((item: ICart) => item.menuId !== id);
+                        } else {
+                            return prevCarts.map((item: ICart) =>
+                                item.menuId === id ? { ...item, quantity: item.quantity - 1 } : item
+                            );
+                        }
+                    }
+                });
+              
             } else {
                 setCart([...carts, { menuId: id, name, quantity: 1 }]);
             }
@@ -50,30 +66,23 @@ const CreateOrder = () => {
     };
 
     const navigate = useNavigate();
-
    
     const handleOrder = async (event: FormEvent) => {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
         const payload = {
-            customerName: form.customerName.value,
-            tableNumber: form.tableNumber.value,
-            carts: carts.map((item: ICart) => ({
-                manuId: item.menuId,
+            customer_Name: form.customerName.value,
+            table_Number: form.tableNumber.value,
+            cart: carts.map((item: ICart) => ({
+                menuItemId: item.menuId,
                 quantity: item.quantity,
                 notes: '', 
             })),
         };
         
-        try {
-            
-            await createOrder(payload);
-            
-            navigate('/orders');
-        } catch (error) {
-            console.error("Error creating order:", error);
-            
-        }
+        await createOrder(payload);
+        return navigate('/orders');
+
     };
 
     return (

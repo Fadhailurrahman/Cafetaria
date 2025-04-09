@@ -5,7 +5,7 @@ interface IMenu {
     price: number;
     image_url: string;
     category: string;  
-    isAvaliable: string;
+    isAvailable: string;
 }
 
 interface ICart {
