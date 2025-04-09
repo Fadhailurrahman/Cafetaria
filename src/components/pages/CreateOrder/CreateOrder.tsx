@@ -1,4 +1,4 @@
-import { useEffect, useState, FormEvent } from "react"; // Pastikan FormEvent diimpor dari 'react'
+import { useEffect, useState, FormEvent } from "react"; 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ICart, IMenu } from "../../../types/order";
 import { getMenus } from "../../../services/menu.service";
@@ -8,19 +8,21 @@ import Select from "../../ui/Select/Select";
 import Input from "../../ui/input";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
+import { createOrder } from "../../../services/order.service"; 
 
 const CreateOrder = () => {
     const [menus, setMenus] = useState<IMenu[]>([]);  
     const [searchParams, setSearchParams] = useSearchParams();
     const [carts, setCart] = useState<ICart[]>([]);
 
+  
     useEffect(() => {
         const fetchOrder = async () => {
             const result = await getMenus(searchParams.get('category') as string);
             setMenus(result.data);
         };
         fetchOrder();
-    }, [searchParams.get('category')]);
+    }, [searchParams]); 
 
     const handleAddToCart = (type: string, id: string, name: string) => {
         const itemIsInCart = carts.find((item: ICart) => item.menuId === id);
@@ -49,20 +51,29 @@ const CreateOrder = () => {
 
     const navigate = useNavigate();
 
+   
     const handleOrder = async (event: FormEvent) => {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
         const payload = {
             customerName: form.customerName.value,
             tableNumber: form.tableNumber.value,
-            cart: carts.map((item: ICart) => ({
-                manuItemId: item.menuId,
+            carts: carts.map((item: ICart) => ({
+                manuId: item.menuId,
                 quantity: item.quantity,
-                notes: '',
+                notes: '', 
             })),
         };
-        await CreateOrder(payload);
-        return navigate('/orders');
+        
+        try {
+            
+            await createOrder(payload);
+            
+            navigate('/orders');
+        } catch (error) {
+            console.error("Error creating order:", error);
+            
+        }
     };
 
     return (

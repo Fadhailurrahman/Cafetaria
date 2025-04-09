@@ -9,7 +9,6 @@ interface IMenu {
 }
 
 interface ICart {
-    id?: string;
     menuId: string;
     quantity: number;
     notes?: string;
