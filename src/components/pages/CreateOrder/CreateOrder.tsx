@@ -1,26 +1,69 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState, FormEvent } from "react"; // Pastikan FormEvent diimpor dari 'react'
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ICart, IMenu } from "../../../types/order";
 import { getMenus } from "../../../services/menu.service";
 import styles from './CreateOrder.module.css';
 import { filters, tables } from "./CreateOrder.constants";
-import  Select  from "../../ui/Select/Select";
+import Select from "../../ui/Select/Select";
 import Input from "../../ui/input";
 import { Link } from "react-router-dom";
-import {Button} from "@mui/material";
+import { Button } from "@mui/material";
 
 const CreateOrder = () => {
     const [menus, setMenus] = useState<IMenu[]>([]);  
     const [searchParams, setSearchParams] = useSearchParams();
     const [carts, setCart] = useState<ICart[]>([]);
-    
+
     useEffect(() => {
         const fetchOrder = async () => {
             const result = await getMenus(searchParams.get('category') as string);
             setMenus(result.data);
         };
         fetchOrder();
-    }, [searchParams]); 
+    }, [searchParams.get('category')]);
+
+    const handleAddToCart = (type: string, id: string, name: string) => {
+        const itemIsInCart = carts.find((item: ICart) => item.menuId === id);
+        if (type === 'increment') {
+            if (itemIsInCart) {
+                setCart(
+                    carts.map((item: ICart) =>
+                        item.menuId === id ? { ...item, quantity: item.quantity + 1 } : item
+                    ),
+                );
+            } else {
+                setCart([...carts, { menuId: id, name, quantity: 1 }]);
+            }
+        } else {
+            if (itemIsInCart && itemIsInCart.quantity <= 1) {
+                setCart(carts.filter((item: ICart) => item.menuId !== id));
+            } else {
+                setCart(
+                    carts.map((item: ICart) =>
+                        item.menuId === id ? { ...item, quantity: item.quantity - 1 } : item
+                    ),
+                );
+            }
+        }
+    };
+
+    const navigate = useNavigate();
+
+    const handleOrder = async (event: FormEvent) => {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const payload = {
+            customerName: form.customerName.value,
+            tableNumber: form.tableNumber.value,
+            cart: carts.map((item: ICart) => ({
+                manuItemId: item.menuId,
+                quantity: item.quantity,
+                notes: '',
+            })),
+        };
+        await CreateOrder(payload);
+        return navigate('/orders');
+    };
 
     return (
         <main className={styles.create}>
@@ -29,7 +72,7 @@ const CreateOrder = () => {
                 <div className={styles.filter}>
                     {filters.map((filter) => (
                         <button 
-                            type='button'
+                            type="button"
                             className={  
                                 (!searchParams.get('category') && filter === 'All' || filter === searchParams.get('category') ? styles.primary : styles.secondary)
                             }
@@ -44,22 +87,23 @@ const CreateOrder = () => {
                     {menus.map((item: IMenu) => (
                         <div className={styles.item} key={item.id}>
                             <img 
-                            src={item.image_url} 
-                            alt={item.name} 
-                            className={styles.image} 
+                                src={item.image_url} 
+                                alt={item.name} 
+                                className={styles.image} 
                             />
-
                             <h2>{item.name}</h2>
                             <div className={styles.bottom}>
                                 <p className={styles.price}>${item.price}</p>
-                                <button onClick={() => {}}>Order</button>
+                                <button onClick={() => 
+                                    handleAddToCart('increment', `${item.id}`, `${item.name}`)
+                                }>Add To Cart</button>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
-            
-            <form className={styles.form}>
+
+            <form className={styles.form} onSubmit={handleOrder}>
                 <div>
                     <div className={styles.header}>
                         <h2 className={styles.title}>Customer Information</h2>
@@ -83,6 +127,34 @@ const CreateOrder = () => {
                             required
                         />
                     </div>
+                </div>
+                <div>
+                    <div className={styles.header}>
+                        <h2 className={styles.title}>Current Order</h2>
+                    </div>
+                    {carts.length > 0 ? (
+                        <div className={styles.cart}>
+                            {carts.map((item: ICart) => (
+                                <div className={styles.item} key={item.menuId}>
+                                    <h4 className={styles.name}>{item.name}</h4>
+                                    <div className={styles.quantity}>
+                                        <Button onClick={() => handleAddToCart('decrement', `${item.menuId}`, `${item.name}`)} color="secondary">
+                                            -
+                                        </Button>
+                                        <div className={styles.number}>{item.quantity}</div>
+                                        <Button onClick={() => handleAddToCart('increment', `${item.menuId}`, `${item.name}`)} color="secondary">
+                                            +
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                            <Button type='submit'>Order</Button>
+                        </div>
+                    ) : (
+                        <div className={styles.cart}>
+                            <h4>Cart is Empty</h4>
+                        </div>
+                    )}
                 </div>
             </form>
         </main>
