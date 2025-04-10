@@ -15,40 +15,23 @@ const CreateOrder = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [carts, setCart] = useState<ICart[]>([]);
 
-  
     useEffect(() => {
         const fetchOrder = async () => {
             const result = await getMenus(searchParams.get('category') as string);
             setMenus(result.data);
         };
         fetchOrder();
-    }, [searchParams]); 
+    }, [searchParams]);
 
     const handleAddToCart = (type: string, id: string, name: string) => {
         const itemIsInCart = carts.find((item: ICart) => item.menuId === id);
         if (type === 'increment') {
             if (itemIsInCart) {
                 setCart((prevCarts) => {
-                    const itemIsInCart = prevCarts.find((item: ICart) => item.menuId === id);
-                    if (type === 'increment') {
-                        if (itemIsInCart) {
-                            return prevCarts.map((item: ICart) =>
-                                item.menuId === id ? { ...item, quantity: item.quantity + 1 } : item
-                            );
-                        } else {
-                            return [...prevCarts, { menuId: id, name, quantity: 1 }];
-                        }
-                    } else {
-                        if (itemIsInCart && itemIsInCart.quantity <= 1) {
-                            return prevCarts.filter((item: ICart) => item.menuId !== id);
-                        } else {
-                            return prevCarts.map((item: ICart) =>
-                                item.menuId === id ? { ...item, quantity: item.quantity - 1 } : item
-                            );
-                        }
-                    }
+                    return prevCarts.map((item: ICart) =>
+                        item.menuId === id ? { ...item, quantity: item.quantity + 1 } : item
+                    );
                 });
-              
             } else {
                 setCart([...carts, { menuId: id, name, quantity: 1 }]);
             }
@@ -82,13 +65,12 @@ const CreateOrder = () => {
         
         await createOrder(payload);
         return navigate('/orders');
-
     };
 
     return (
         <main className={styles.create}>
             <div className={styles.menu}>
-                <h1>Explore Our Best Menu</h1>
+                <h1>Temukan Menu Favorit Anda</h1>
                 <div className={styles.filter}>
                     {filters.map((filter) => (
                         <button 
@@ -114,9 +96,9 @@ const CreateOrder = () => {
                             <h2>{item.name}</h2>
                             <div className={styles.bottom}>
                                 <p className={styles.price}>${item.price}</p>
-                                <button onClick={() => 
-                                    handleAddToCart('increment', `${item.id}`, `${item.name}`)
-                                }>Add To Cart</button>
+                                <button onClick={() => handleAddToCart('increment', `${item.id}`, `${item.name}`)}>
+                                    Add to Cart
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -126,9 +108,9 @@ const CreateOrder = () => {
             <form className={styles.form} onSubmit={handleOrder}>
                 <div>
                     <div className={styles.header}>
-                        <h2 className={styles.title}>Customer Information</h2>
+                        <h2 className={styles.title}>Informasi Pemesanan</h2>
                         <Link to="/orders">
-                            <Button color="secondary">Cancel</Button>
+                            <Button variant="outlined" color="secondary">Kembali</Button>
                         </Link>
                     </div>
                     <div className={styles.input}>
@@ -150,7 +132,7 @@ const CreateOrder = () => {
                 </div>
                 <div>
                     <div className={styles.header}>
-                        <h2 className={styles.title}>Current Order</h2>
+                        <h2 className={styles.title}>Pesanan</h2>
                     </div>
                     {carts.length > 0 ? (
                         <div className={styles.cart}>
@@ -168,7 +150,7 @@ const CreateOrder = () => {
                                     </div>
                                 </div>
                             ))}
-                            <Button type='submit'>Order</Button>
+                            <Button variant="contained" type="submit" color="primary">Order</Button>
                         </div>
                     ) : (
                         <div className={styles.cart}>
