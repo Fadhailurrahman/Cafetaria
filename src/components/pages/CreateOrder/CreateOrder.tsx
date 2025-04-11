@@ -53,19 +53,18 @@ const CreateOrder = () => {
     const handleOrder = async (event: FormEvent) => {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
+    
         const payload = {
-            customer_Name: form.customerName.value,
-            table_Number: form.tableNumber.value,
-            cart: carts.map((item: ICart) => ({
-                menuItemId: item.menuId,
-                quantity: item.quantity,
-                notes: '', 
-            })),
+            customerName: form.customerName.value,
+            tableNumber: Number(form.tableNumber.value),
+            cart: carts,
         };
-        
+    
         await createOrder(payload);
         return navigate('/orders');
     };
+    
+    
 
     return (
         <main className={styles.create}>
